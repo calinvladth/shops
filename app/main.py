@@ -1,66 +1,73 @@
 import os
-from flask import Flask, request
+from flask import Flask
 from flask_restful import Resource, Api
+from flask_sqlalchemy import SQLAlchemy
+from common.config import UPLOAD_FOLDER, CWD
+from resources.file_uploader import FileUploader
 
-cwd = os.getcwd()
-UPLOAD_FOLDER = "data"
+from resources.shop import Shop
+from resources.shop_menu import ShopMenu
+from models import db, jwt
+
+from resources.todo import TodoList, Todo
+
+from resources import (
+    ForgotPassword,
+    Login,
+    Register,
+    ResetPassword,
+    RestrictedRoute,
+    ShopList,
+    ShopResource,
+    ProductsList,
+    Product,
+)
+
 
 app = Flask(
     __name__,
-    static_folder=os.path.join(cwd, UPLOAD_FOLDER),
+    static_folder=os.path.join(CWD, UPLOAD_FOLDER),
 )
-app.config["UPLOAD_FOLDER"] = os.path.join(cwd, UPLOAD_FOLDER)
+
+# Configuration
+app.config["SECRET_KEY"] = "secret"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///Database.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["JWT_SECRET_KEY"] = "whatever"
+
+
+# Init database
+db.init_app(app)
+jwt.init_app(app)
+
+app.config["UPLOAD_FOLDER"] = os.path.join(CWD, UPLOAD_FOLDER)
 api = Api(app)
 
 
-class FileUploader(Resource):
-    def get(self):
-        user_id = request.args.get("user_id")
-        if not user_id:
-            return "user id is missing", 500
-
-        folder = request.args.get("folder")
-        if not folder:
-            return "folder is missing", 500
-
-        return "get file", 200
-
-    def post(self):
-        user_id = request.args.get("user_id")
-        if not user_id:
-            return "user id is missing", 500
-
-        folder = request.args.get("folder")
-        if not folder:
-            return "folder is missing", 500
-
-        if "file" not in request.files:
-            return "file type is missing", 500
-
-        if not os.path.exists(os.path.join(app.config["UPLOAD_FOLDER"], user_id)):
-            os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], user_id))
-
-        if not os.path.exists(
-            os.path.join(app.config["UPLOAD_FOLDER"], user_id, folder)
-        ):
-            os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], user_id, folder))
-
-        files = request.files.getlist("file")
-
-        for file in files:
-            file.save(
-                os.path.join(
-                    app.config["UPLOAD_FOLDER"], user_id, folder, file.filename
-                )
-            )
-
-        return "upload ok", 200
-
-
 api.add_resource(FileUploader, "/upload")
+api.add_resource(Shop, "/shop")
+api.add_resource(ShopMenu, "/shop/<shop_id>")
+
+api.add_resource(TodoList, "/todos")
+api.add_resource(Todo, "/todos/<int:todo_id>")
+
+api.add_resource(Register, "/register")
+api.add_resource(Login, "/login")
+api.add_resource(ForgotPassword, "/forgot-password")
+api.add_resource(ResetPassword, "/reset-password")
+api.add_resource(RestrictedRoute, "/restricted")
+
+api.add_resource(ShopList, "/shops")
+api.add_resource(ShopResource, "/shops/<int:shop_id>")
+api.add_resource(ProductsList, "/shops/<int:shop_id>/products")
+api.add_resource(Product, "/shops/<int:shop_id>/products/<int:product_id>")
+
 
 if __name__ == "__main__":
     if not os.path.exists(app.config["UPLOAD_FOLDER"]):
         os.makedirs(app.config["UPLOAD_FOLDER"])
+
+    with app.app_context():
+        db.create_all()
 
     app.run(port=8000, debug=True)
