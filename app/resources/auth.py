@@ -2,12 +2,13 @@ from datetime import timedelta
 from flask import request
 from flask_restful import Resource
 from models.users import UserModel
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt_identity
 from models import db
 from services import send_email
+from wrappers import auth_required, shop_required
 
 
-class Register(Resource):
+class RegisterUser(Resource):
     def post(self):
         data = request.get_json()
         email = data.get("email")
@@ -26,6 +27,32 @@ class Register(Resource):
             return "server error", 400
 
         user = UserModel(email=email)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        return "ok", 201
+
+
+class RegisterShop(Resource):
+    def post(self):
+        data = request.get_json()
+        email = data.get("email")
+
+        if not email:
+            return "email missing", 500
+
+        password = data.get("password")
+
+        if not password:
+            return "password missing", 500
+
+        user_exists = UserModel.query.filter_by(email=email).first()
+
+        if user_exists:
+            return "server error", 400
+
+        user = UserModel(email=email, is_shop=True)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -89,7 +116,7 @@ class ForgotPassword(Resource):
 
 
 class ResetPassword(Resource):
-    @jwt_required()
+    @auth_required()
     def post(self):
         data = request.get_json()
         new_password = data.get("new_password")
@@ -114,8 +141,9 @@ class ResetPassword(Resource):
 
 
 class RestrictedRoute(Resource):
-    @jwt_required()
-    def get(self):
+    @shop_required()
+    def get(self, user):
+
         user_id = get_jwt_identity()
 
-        return f"Hola from restricted {user_id}"
+        return user.to_dict()

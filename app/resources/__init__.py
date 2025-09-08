@@ -1,3 +1,10 @@
-from .auth import Login, Register, ForgotPassword, ResetPassword, RestrictedRoute
+from .auth import (
+    Login,
+    RegisterUser,
+    RegisterShop,
+    ForgotPassword,
+    ResetPassword,
+    RestrictedRoute,
+)
 from .shops import ShopList, ShopResource
 from .products import ProductsList, Product

@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import ShopModel, db
+from wrappers import shop_required
 
 
 class ShopList(Resource):
@@ -10,12 +10,10 @@ class ShopList(Resource):
 
         return [shop.to_dict() for shop in shops]
 
-    @jwt_required()
-    def post(self):
-        user_id = get_jwt_identity()
-
+    @shop_required()
+    def post(self, user):
         data = request.get_json()
-        new_shop = ShopModel(title=data["title"], user_id=user_id)
+        new_shop = ShopModel(title=data["title"], user_id=user.id)
         db.session.add(new_shop)
         db.session.commit()
 
@@ -31,11 +29,10 @@ class ShopResource(Resource):
 
         return shop.to_dict()
 
-    @jwt_required()
-    def put(self, shop_id):
-        user_id = get_jwt_identity()
+    @shop_required()
+    def put(self, shop_id, user):
         data = request.get_json()
-        shop = ShopModel.query.filter_by(id=shop_id, user_id=user_id).first()
+        shop = ShopModel.query.filter_by(id=shop_id, user_id=user.id).first()
 
         if not shop:
             return "shop not found"
@@ -45,10 +42,9 @@ class ShopResource(Resource):
 
         return shop.to_dict()
 
-    @jwt_required()
-    def delete(self, shop_id):
-        user_id = get_jwt_identity()
-        shop = ShopModel.query.filter_by(id=shop_id, user_id=user_id).first()
+    @shop_required()
+    def delete(self, shop_id, user):
+        shop = ShopModel.query.filter_by(id=shop_id, user_id=user.id).first()
 
         if not shop:
             return "shop not found", 404

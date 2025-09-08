@@ -9,12 +9,11 @@ from resources.shop import Shop
 from resources.shop_menu import ShopMenu
 from models import db, jwt
 
-from resources.todo import TodoList, Todo
-
 from resources import (
     ForgotPassword,
     Login,
-    Register,
+    RegisterUser,
+    RegisterShop,
     ResetPassword,
     RestrictedRoute,
     ShopList,
@@ -48,10 +47,8 @@ api.add_resource(FileUploader, "/upload")
 api.add_resource(Shop, "/shop")
 api.add_resource(ShopMenu, "/shop/<shop_id>")
 
-api.add_resource(TodoList, "/todos")
-api.add_resource(Todo, "/todos/<int:todo_id>")
-
-api.add_resource(Register, "/register")
+api.add_resource(RegisterUser, "/register-user")
+api.add_resource(RegisterShop, "/register-shop")
 api.add_resource(Login, "/login")
 api.add_resource(ForgotPassword, "/forgot-password")
 api.add_resource(ResetPassword, "/reset-password")
