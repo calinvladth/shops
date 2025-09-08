@@ -11,7 +11,6 @@ class ProductsList(Resource):
 
         return [product.to_dict() for product in products]
 
-    # TODO: Check for shop existence
     @shop_required()
     @validate_shop()
     def post(self, shop_id, user):
