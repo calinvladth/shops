@@ -8,3 +8,4 @@ from .auth import (
 )
 from .shops import ShopList, ShopResource
 from .products import ProductsList, Product
+from .cart import CartListResource, CartItemResource
