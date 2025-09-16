@@ -7,4 +7,4 @@ jwt = JWTManager()
 from .users import UserModel
 from .shops import ShopModel
 from .products import ProductsModel
-from .cart import Cart, CartItem
+from .cart import CartModel, CartItemModel

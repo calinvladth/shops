@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from . import db
 
 
-class Cart(db.Model):
+class CartModel(db.Model):
     __tablename__ = "carts"
 
     __table_args__ = (UniqueConstraint("user_id"),)
@@ -20,7 +20,7 @@ class Cart(db.Model):
         }
 
 
-class CartItem(db.Model):
+class CartItemModel(db.Model):
     __tablename__ = "cart_item"
 
     id = db.Column(db.Integer, primary_key=True)

@@ -20,8 +20,8 @@ from resources import (
     ShopResource,
     ProductsList,
     Product,
-    CartListResource,
-    CartItemResource,
+    CartList,
+    CartItems,
 )
 
 
@@ -61,8 +61,8 @@ api.add_resource(ShopResource, "/shops/<int:shop_id>")
 api.add_resource(ProductsList, "/shops/<int:shop_id>/products")
 api.add_resource(Product, "/shops/<int:shop_id>/products/<int:product_id>")
 
-api.add_resource(CartListResource, "/cart")
-api.add_resource(CartItemResource, "/cart/<int:product_id>")
+api.add_resource(CartList, "/cart")
+api.add_resource(CartItems, "/cart/<int:shop_id>")
 
 
 if __name__ == "__main__":
