@@ -1,75 +1,115 @@
 from flask import request
 from flask_restful import Resource
-from models import CartModel, CartItemModel, ProductsModel, db
+from models import CartModel, CartItemModel, ProductsModel, ShopModel, db
 from wrappers import (
     auth_required,
     validate_shop,
 )
 
 
-# Get or create cart
 class CartList(Resource):
     @auth_required()
     def get(self, user):
-        cart = CartModel.query.filter_by(user_id=user.id).first()
+        try:
+            cart = CartModel.query.filter_by(user_id=user.id).first()
 
-        if not cart:
-            cart = CartModel(user_id=user.id)
-            db.session.add(cart)
-            db.session.commit()
+            if not cart:
+                cart = CartModel(user_id=user.id)
+                db.session.add(cart)
+                db.session.commit()
 
-        return cart.to_dict()
+            return cart.to_dict()
+
+        except Exception as e:
+            return f"something went wrong: {e}", 500
 
 
 class CartItems(Resource):
     @auth_required()
-    def get(self, user, shop_id):
-        cart_items = CartItemModel.query.filter_by(user_id=user.id, shop_id=shop_id)
+    def post(self, user):
+        try:
+            data = request.get_json()
 
-        return [item.to_dict() for item in cart_items]
+            shop_id = data.get("shop_id")
+            product_id = data.get("product_id")
+
+            if not shop_id:
+                return "shop is missing", 500
+
+            if not product_id:
+                return "product is missing", 500
+
+            cart = CartModel.query.filter_by(user_id=user.id).first()
+
+            if not cart:
+                return "cart doesn't exist", 404
+
+            shop = ShopModel.query.get(shop_id)
+
+            if not shop:
+                return "shop doesn't exist", 404
+
+            product = ProductsModel.query.get(product_id)
+
+            if not product:
+                return "product doesn't exist", 404
+
+            if shop_id != product.shop_id:
+                return "product is from another shop", 500
+
+            if cart.shop_id != product.shop_id:
+                cart.shop_id = product.shop_id
+
+                cart_items = CartItemModel.query.filter_by(user_id=user.id).all()
+                for item in cart_items:
+                    db.session.delete(item)
+
+            is_cart_item = CartItemModel.query.filter_by(product_id=product_id).first()
+
+            if is_cart_item:
+                return "product is already in cart", 500
+
+            new_cart_item = CartItemModel(
+                user_id=user.id,
+                shop_id=shop_id,
+                product_id=product.id,
+                cart_id=cart.id,
+            )
+
+            db.session.add(new_cart_item)
+            db.session.commit()
+
+            return "ok", 200
+
+        except Exception as e:
+            return f"something went wrong: {e}", 500
 
     @auth_required()
-    @validate_shop()
-    def post(self, user, shop_id):
-        data = request.get_json()
+    def delete(self, user):
+        try:
+            data = request.get_json()
+            cart_item_id = data.get("cart_item")
 
-        if not data["product_id"]:
-            return "product is missing", 500
+            if not cart_item_id:
+                return "cart item is missing", 500
 
-        cart = CartModel.query.filter_by(user_id=user.id).first()
-        product = ProductsModel.query.get(data["product_id"])
+            cart_item = CartItemModel.query.filter_by(
+                id=cart_item_id, user_id=user.id
+            ).first()
 
-        if cart.shop_id != product.shop_id:
-            cart.shop_id = product.shop_id
+            if not cart_item:
+                return "cart item doesn't exist", 404
 
-            cart_items = CartItemModel.query.filter_by(user_id=user.id).all()
-            for item in cart_items:
-                db.session.delete(item)
+            db.session.delete(cart_item)
+            db.session.commit()
 
-        new_cart_item = CartItemModel(
-            user_id=user.id,
-            shop_id=shop_id,
-            product_id=product.id,
-            cart_id=cart.id,
-        )
+            return "ok", 200
 
-        db.session.add(new_cart_item)
-        db.session.commit()
+        except Exception as e:
+            return f"something went wrong: {e}", 500
 
-        return "ok", 200
 
+class CartItemUpdate(Resource):
     @auth_required()
-    @validate_shop()
-    def delete(self, user, shop_id):
-        data = request.get_json()
-        cart_item = CartItemModel.query.filter_by(
-            user_id=user.id, product_id=data["product_id"]
-        ).first()
-
-        if not cart_item:
-            return f"product {data["product_id"]} is missing from cart"
-
-        db.session.delete(cart_item)
-        db.session.commit()
-
-        return "ok", 200
+    def put(self, user, cart_item_id):
+        return f"update cart item {cart_item_id}", 200
