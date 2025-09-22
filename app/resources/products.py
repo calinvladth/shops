@@ -7,58 +7,103 @@ from wrappers import shop_required, validate_shop
 class ProductsList(Resource):
     @validate_shop()
     def get(self, shop_id):
-        products = ProductsModel.query.filter_by(shop_id=shop_id)
+        try:
+            products = ProductsModel.query.filter_by(shop_id=shop_id)
 
-        return [product.to_dict() for product in products]
+            return [product.to_dict() for product in products]
+
+        except Exception as e:
+            return f"something went wrong: {e}"
 
     @shop_required()
     @validate_shop()
     def post(self, shop_id, user):
-        data = request.get_json()
-        new_product = ProductsModel(name=data["name"], user_id=user.id, shop_id=shop_id)
-        db.session.add(new_product)
-        db.session.commit()
+        try:
+            data = request.get_json()
 
-        return new_product.to_dict(), 201
+            name = data.get("name", "").strip()
+            price = data.get("price", 0)
+
+            if name is None or len(name) == 0:
+                return "name is missing", 500
+
+            if price is None or int(price) == 0:
+                return "price is missing", 500
+
+            new_product = ProductsModel(
+                name=name, price=price, user_id=user.id, shop_id=shop_id
+            )
+            db.session.add(new_product)
+            db.session.commit()
+
+            return new_product.to_dict(), 201
+
+        except Exception:
+            return "something went wrong", 500
 
 
 class Product(Resource):
     @validate_shop()
     def get(self, product_id, shop_id):
-        product = ProductsModel.query.filter_by(id=product_id, shop_id=shop_id).first()
+        try:
+            product = ProductsModel.query.filter_by(
+                id=product_id, shop_id=shop_id
+            ).first()
 
-        if not product:
-            return "product not found", 404
+            if not product:
+                return "product not found", 404
 
-        return product.to_dict()
+            return product.to_dict()
+
+        except Exception as e:
+            return f"something went wrong: {e}", 500
 
     @shop_required()
     @validate_shop()
     def put(self, product_id, shop_id, user):
-        data = request.get_json()
-        product = ProductsModel.query.filter_by(
-            id=product_id, shop_id=shop_id, user_id=user.id
-        ).first()
+        try:
+            data = request.get_json()
 
-        if not product:
-            return "product not found"
+            product = ProductsModel.query.filter_by(
+                id=product_id, shop_id=shop_id, user_id=user.id
+            ).first()
 
-        product.name = data["name"]
-        db.session.commit()
+            if not product:
+                return "product not found"
 
-        return product.to_dict()
+            data = request.get_json()
+
+            name = data.get("name", "").strip()
+            price = data.get("price", 0)
+
+            if name:
+                product.name = name
+
+            if price and int(price) > 0:
+                product.price = price
+
+            db.session.commit()
+
+            return product.to_dict()
+
+        except Exception as e:
+            return f"something went wrong: {e}", 500
 
     @shop_required()
     @validate_shop()
     def delete(self, shop_id, product_id, user):
-        product = ProductsModel.query.filter_by(
-            id=product_id, shop_id=shop_id, user_id=user.id
-        ).first()
+        try:
+            product = ProductsModel.query.filter_by(
+                id=product_id, shop_id=shop_id, user_id=user.id
+            ).first()
 
-        if not product:
-            return "shop not found", 404
+            if not product:
+                return "shop not found", 404
 
-        db.session.delete(product)
-        db.session.commit()
+            db.session.delete(product)
+            db.session.commit()
 
-        return "ok", 200
+            return "ok", 200
+
+        except Exception as e:
+            return "something went wrong", 500

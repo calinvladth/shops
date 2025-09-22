@@ -1,7 +1,6 @@
 from flask import request
 from flask_restful import Resource
 from models import CartModel, CartItemModel, ProductsModel, db
-from sqlalchemy import delete
 from wrappers import (
     auth_required,
     validate_shop,
@@ -31,7 +30,6 @@ class CartItems(Resource):
 
     @auth_required()
     @validate_shop()
-    # TODO: If shop_id differs from cart's shop_id, remove all content before adding the new one
     def post(self, user, shop_id):
         data = request.get_json()
 
@@ -41,7 +39,6 @@ class CartItems(Resource):
         cart = CartModel.query.filter_by(user_id=user.id).first()
         product = ProductsModel.query.get(data["product_id"])
 
-        # TODO: If not same shop, update shop
         if cart.shop_id != product.shop_id:
             cart.shop_id = product.shop_id
 
