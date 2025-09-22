@@ -30,7 +30,8 @@ def validate_product():
         @wraps(fn)
         def decorator(*args, **kwargs):
             product_id = kwargs.get("product_id", None)
-            print("PPP: ", args)
+
+            print(f"PID {product_id}")
 
             if not product_id:
                 return "missing product", 500

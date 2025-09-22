@@ -1,6 +1,5 @@
 from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import relationship
-from . import db
+from . import db, ProductsModel
 
 
 class CartModel(db.Model):
@@ -12,11 +11,18 @@ class CartModel(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     shop_id = db.Column(db.Integer, db.ForeignKey("shops.id"), nullable=True)
 
+    items = db.relationship(
+        "CartItemModel",
+        foreign_keys="CartItemModel.cart_id",
+        backref="cart",
+    )
+
     def to_dict(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
             "shop_id": self.shop_id,
+            "items": [item.to_dict() for item in self.items],
         }
 
 
@@ -29,10 +35,10 @@ class CartItemModel(db.Model):
     shop_id = db.Column(db.Integer, db.ForeignKey("shops.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
+    product = db.relationship(ProductsModel, foreign_keys=[product_id])
+
     def to_dict(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
-            "shop_id": self.shop_id,
-            "product_id": self.product_id,
+            "product": self.product.to_dict() if self.product else None,
         }
