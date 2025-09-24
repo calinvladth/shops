@@ -45,9 +45,11 @@ app.config["UPLOAD_FOLDER"] = os.path.join(CWD, UPLOAD_FOLDER)
 api = Api(app)
 
 
+# Old
 api.add_resource(FileUploader, "/upload")
 api.add_resource(Shop, "/shop")
 api.add_resource(ShopMenu, "/shop/<shop_id>")
+# End Old
 
 api.add_resource(RegisterUser, "/register-user")
 api.add_resource(RegisterShop, "/register-shop")
@@ -58,8 +60,8 @@ api.add_resource(RestrictedRoute, "/restricted")
 
 api.add_resource(ShopList, "/shops")
 api.add_resource(ShopResource, "/shops/<int:shop_id>")
-api.add_resource(ProductsList, "/shops/<int:shop_id>/products")
-api.add_resource(Product, "/shops/<int:shop_id>/products/<int:product_id>")
+api.add_resource(ProductsList, "/products")
+api.add_resource(Product, "/products/<int:product_id>")
 
 api.add_resource(CartList, "/cart")
 api.add_resource(CartItems, "/cart_item")
