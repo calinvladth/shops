@@ -3,7 +3,6 @@ from flask_restful import Resource
 from models import CartModel, CartItemModel, ProductsModel, ShopModel, db
 from wrappers import (
     auth_required,
-    validate_shop,
 )
 
 
@@ -85,6 +84,36 @@ class CartItems(Resource):
             return f"something went wrong: {e}", 500
 
     @auth_required()
+    def put(self, user):
+        try:
+            data = request.get_json()
+            cart_item_id = data.get("cart_item")
+            quantity = data.get("quantity")
+
+            if not cart_item_id:
+                return "cart item is missing", 500
+
+            if not quantity:
+                return "quantity is missing", 500
+
+            cart_item = CartItemModel.query.filter_by(
+                id=cart_item_id, user_id=user.id
+            ).first()
+
+            if not cart_item:
+                return "item not found", 404
+
+            cart_item.quantity = quantity
+
+            db.session.add(cart_item)
+            db.session.commit()
+
+            return "ok", 200
+
+        except Exception as e:
+            return f"something went wrong: {e}", 500
+
+    @auth_required()
     def delete(self, user):
         try:
             data = request.get_json()
@@ -107,9 +136,3 @@ class CartItems(Resource):
 
         except Exception as e:
             return f"something went wrong: {e}", 500
-
-
-class CartItemUpdate(Resource):
-    @auth_required()
-    def put(self, user, cart_item_id):
-        return f"update cart item {cart_item_id}", 200
