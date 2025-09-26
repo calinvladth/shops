@@ -2,12 +2,12 @@ from flask import request
 from flask_restful import Resource
 from models import CartModel, CartItemModel, ProductsModel, ShopModel, db
 from wrappers import (
-    auth_required,
+    user_permissions,
 )
 
 
 class CartList(Resource):
-    @auth_required()
+    @user_permissions()
     def get(self, user):
         try:
             cart = CartModel.query.filter_by(user_id=user.id).first()
@@ -24,7 +24,7 @@ class CartList(Resource):
 
 
 class CartItems(Resource):
-    @auth_required()
+    @user_permissions()
     def post(self, user):
         try:
             data = request.get_json()
@@ -83,7 +83,7 @@ class CartItems(Resource):
         except Exception as e:
             return f"something went wrong: {e}", 500
 
-    @auth_required()
+    @user_permissions()
     def put(self, user):
         try:
             data = request.get_json()
@@ -113,7 +113,7 @@ class CartItems(Resource):
         except Exception as e:
             return f"something went wrong: {e}", 500
 
-    @auth_required()
+    @user_permissions()
     def delete(self, user):
         try:
             data = request.get_json()

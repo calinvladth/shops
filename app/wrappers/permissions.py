@@ -4,7 +4,7 @@ from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from models import UserModel
 
 
-def auth_required():
+def user_permissions():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
@@ -23,7 +23,7 @@ def auth_required():
     return wrapper
 
 
-def shop_required():
+def shop_owner_permissions():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):

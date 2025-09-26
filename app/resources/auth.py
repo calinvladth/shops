@@ -5,7 +5,7 @@ from models.users import UserModel
 from flask_jwt_extended import create_access_token, get_jwt_identity
 from models import db
 from services import send_email
-from wrappers import auth_required, shop_required
+from wrappers import user_permissions, shop_owner_permissions
 
 
 class RegisterUser(Resource):
@@ -116,7 +116,7 @@ class ForgotPassword(Resource):
 
 
 class ResetPassword(Resource):
-    @auth_required()
+    @user_permissions()
     def post(self):
         data = request.get_json()
         new_password = data.get("new_password")
@@ -141,7 +141,7 @@ class ResetPassword(Resource):
 
 
 class RestrictedRoute(Resource):
-    @shop_required()
+    @shop_owner_permissions()
     def get(self, user):
 
         user_id = get_jwt_identity()

@@ -1,43 +1,24 @@
 from flask import request
 from flask_restful import Resource
 from models import ProductsModel, db, ShopModel, CartItemModel, ProductImagesModel
-from wrappers import shop_required
-from common.config import UPLOAD_FOLDER
+from wrappers import shop_owner_permissions, shop_check, product_check
 
 
 class ProductsList(Resource):
-    def get(self):
+    @shop_check("r")
+    def get(self, shop, **kwargs):
         try:
-            shop_id = request.args.get("shop_id")
-
-            if not shop_id:
-                return "shop id is missing", 500
-
-            shop = ShopModel.query.get(shop_id)
-
-            if not shop:
-                return "shop not found", 404
-
-            products = ProductsModel.query.filter_by(shop_id=shop_id)
+            products = ProductsModel.query.filter_by(shop_id=shop.id)
 
             return [product.to_dict() for product in products]
 
         except Exception as e:
             return f"something went wrong: {e}"
 
-    @shop_required()
-    def post(self, user):
+    @shop_owner_permissions()
+    @shop_check("w")
+    def post(self, user, shop, **kwargs):
         try:
-            shop_id = request.args.get("shop_id")
-
-            if not shop_id:
-                return "shop is missing", 500
-
-            shop = ShopModel.query.get(shop_id)
-
-            if not shop:
-                return "shop not found", 404
-
             data = request.get_json()
 
             name = data.get("name", "").strip()
@@ -50,7 +31,7 @@ class ProductsList(Resource):
                 return "price is missing", 500
 
             new_product = ProductsModel(
-                name=name, price=price, shop_id=shop_id, user_id=user.id
+                name=name, price=price, shop_id=shop.id, user_id=user.id
             )
             db.session.add(new_product)
             db.session.commit()
@@ -62,51 +43,21 @@ class ProductsList(Resource):
 
 
 class Product(Resource):
-    def get(self, product_id):
+    @shop_check("r")
+    @product_check("r")
+    def get(self, product, **kwargs):
+
         try:
-            shop_id = request.args.get("shop_id")
-
-            if not shop_id:
-                return "shop id is missing", 500
-
-            shop = ShopModel.query.get(shop_id)
-
-            if not shop:
-                return "shop not found", 404
-
-            product = ProductsModel.query.filter_by(
-                id=product_id, shop_id=shop_id
-            ).first()
-
-            if not product:
-                return "product not found", 404
-
             return product.to_dict()
 
         except Exception as e:
             return f"something went wrong: {e}", 500
 
-    def put(self, product_id, user):
+    @shop_owner_permissions()
+    @shop_check("w")
+    @product_check("w")
+    def put(self, product, **kwargs):
         try:
-            shop_id = request.args.get("shop_id")
-
-            if not shop_id:
-                return "shop id is missing", 500
-
-            shop = ShopModel.query.get(shop_id)
-
-            if not shop:
-                return "shop not found", 404
-
-            data = request.get_json()
-
-            product = ProductsModel.query.filter_by(
-                id=product_id, shop_id=shop_id, user_id=user.id
-            ).first()
-
-            if not product:
-                return "product not found"
-
             data = request.get_json()
 
             name = data.get("name", "").strip()
@@ -125,26 +76,11 @@ class Product(Resource):
         except Exception as e:
             return f"something went wrong: {e}", 500
 
-    @shop_required()
-    def delete(self, product_id, user):
+    @shop_owner_permissions()
+    @shop_check("w")
+    @product_check("w")
+    def delete(self, product, **kwargs):
         try:
-            shop_id = request.args.get("shop_id")
-
-            if not shop_id:
-                return "shop id is missing", 500
-
-            shop = ShopModel.query.get(shop_id)
-
-            if not shop:
-                return "shop not found", 404
-
-            product = ProductsModel.query.filter_by(
-                id=product_id, shop_id=shop_id, user_id=user.id
-            ).first()
-
-            if not product:
-                return "product not found", 404
-
             cart_items = CartItemModel.query.filter_by(product_id=product.id)
 
             for item in cart_items:

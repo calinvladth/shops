@@ -1,47 +1,34 @@
 from functools import wraps
 
-from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
-from models import ShopModel, ProductsModel, CartModel
+from models import ShopModel, CartModel
+from flask import request
 
 
-def validate_shop():
+def shop_check(permissions="w"):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            shop_id = kwargs.get("shop_id", None)
+
+            shop_id = kwargs.get("shop_id", None) or request.args.get("shop_id")
 
             if not shop_id:
                 return "missing shop", 500
 
-            shop = ShopModel.query.get(shop_id)
+            if permissions == "r":
+                shop = ShopModel.query.filter_by(id=shop_id).first()
+
+            if permissions == "w":
+                user = kwargs.get("user")
+
+                if not user:
+                    return "user is missing"
+
+                shop = ShopModel.query.filter_by(id=shop_id, user_id=user.id).first()
 
             if not shop:
                 return "shop not found", 404
 
-            return fn(*args, **kwargs)
-
-        return decorator
-
-    return wrapper
-
-
-def validate_product():
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(*args, **kwargs):
-            product_id = kwargs.get("product_id", None)
-
-            print(f"PID {product_id}")
-
-            if not product_id:
-                return "missing product", 500
-
-            product = ProductsModel.query.get(product_id)
-
-            if not product:
-                return "product not found", 404
-
-            return fn(*args, **kwargs)
+            return fn(shop=shop, *args, **kwargs)
 
         return decorator
 

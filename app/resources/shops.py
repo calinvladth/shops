@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from models import ShopModel, db
-from wrappers import shop_required
+from wrappers import shop_owner_permissions, shop_check
 
 
 class ShopList(Resource):
@@ -14,7 +14,7 @@ class ShopList(Resource):
         except Exception as e:
             return f"something went wrong: {e}", 500
 
-    @shop_required()
+    @shop_owner_permissions()
     def post(self, user):
         try:
             data = request.get_json()
@@ -69,20 +69,17 @@ class ShopResource(Resource):
         except Exception as e:
             return f"something went wrong: {e}", 500
 
-    @shop_required()
-    def put(self, shop_id, user):
+    @shop_owner_permissions()
+    @shop_check()
+    def put(self, shop, **kwargs):
         try:
+            print(shop)
             data = request.get_json()
             name = data.get("name", "").strip()
             address = data.get("address", "").strip()
             city = data.get("city", "").strip()
             latitude = data.get("latitude", 0)
             longitude = data.get("longitude", 0)
-
-            shop = ShopModel.query.filter_by(id=shop_id, user_id=user.id).first()
-
-            if not shop:
-                return "shop not found"
 
             if name:
                 shop.name = name
@@ -106,14 +103,11 @@ class ShopResource(Resource):
         except Exception as e:
             return "something went wrong", 500
 
-    @shop_required()
-    def delete(self, shop_id, user):
+    @shop_owner_permissions()
+    @shop_check()
+    def delete(self, shop, **kwargs):
         try:
-            shop = ShopModel.query.filter_by(id=shop_id, user_id=user.id).first()
-
-            if not shop:
-                return "shop not found", 404
-
+            print(shop)
             db.session.delete(shop)
             db.session.commit()
 
