@@ -1,14 +1,11 @@
-import os
-import time
-
 from models import db, ProductImagesModel
 from flask_restful import Resource
 from flask import request
-from werkzeug.utils import secure_filename
 
-from common.config import UPLOAD_FOLDER, UPLOAD_FOLDER_NAME
 from wrappers import shop_owner_permissions, shop_check, product_check
 from sqlalchemy import desc
+
+from services import save_file, remove_file
 
 
 class ProductImages(Resource):
@@ -42,15 +39,11 @@ class ProductImages(Resource):
 
             for index, image in enumerate(images):
                 if image:
-                    timestamp = time.time()
-                    ext = os.path.splitext(image.filename)[1]
-                    filename = secure_filename(f"{timestamp}{ext}")
-                    save_path = os.path.join(UPLOAD_FOLDER, filename)
-                    image.save(save_path)
+                    filename, url_path = save_file(image)
 
                     product_image = ProductImagesModel(
                         product_id=product.id,
-                        path=f"/{UPLOAD_FOLDER_NAME}/{filename}",
+                        path=url_path,
                         filename=filename,
                         shop_id=shop.id,
                         user_id=user.id,
@@ -84,9 +77,7 @@ class ProductImages(Resource):
 
                 for image in images:
                     db.session.delete(image)
-
-                    if os.path.exists(os.path.join(UPLOAD_FOLDER, image.filename)):
-                        os.remove(os.path.join(UPLOAD_FOLDER, image.filename))
+                    remove_file(image)
 
             if image_id:
                 image = ProductImagesModel.query.filter_by(
@@ -97,8 +88,7 @@ class ProductImages(Resource):
                     return "no image", 404
 
                 db.session.delete(image)
-                if os.path.exists(os.path.join(UPLOAD_FOLDER, image.filename)):
-                    os.remove(os.path.join(UPLOAD_FOLDER, image.filename))
+                remove_file(image)
 
             db.session.commit()
 
