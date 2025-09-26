@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource
-from models import ProductsModel, db, ShopModel, CartItemModel, ProductImagesModel
+from models import ProductsModel, db, CartItemModel
 from wrappers import shop_owner_permissions, shop_check, product_check
 
 

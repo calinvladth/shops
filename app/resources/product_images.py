@@ -1,32 +1,21 @@
 import os
 import time
 
-from models import db, ShopModel, ProductImagesModel, ProductsModel
+from models import db, ProductImagesModel
 from flask_restful import Resource
 from flask import request
 from werkzeug.utils import secure_filename
 
-from common.validators import validate_shop, validate_product
 from common.config import UPLOAD_FOLDER, UPLOAD_FOLDER_NAME
-from wrappers.permissions import shop_owner_permissions
+from wrappers import shop_owner_permissions, shop_check, product_check
 from sqlalchemy import desc
 
 
 class ProductImages(Resource):
-    def get(self):
+    @shop_check("r")
+    @product_check("r")
+    def get(self, shop, product, **kwargs):
         try:
-            shop_id = request.args.get("shop_id")
-            shop, err = validate_shop(shop_id=shop_id)
-
-            if err:
-                return err
-
-            product_id = request.args.get("product_id")
-            product, err = validate_product(product_id=product_id, shop_id=shop.id)
-
-            if err:
-                return err
-
             images = ProductImagesModel.query.filter_by(
                 shop_id=shop.id, product_id=product.id
             )
@@ -37,20 +26,10 @@ class ProductImages(Resource):
             return f"something went wrong: {e}", 500
 
     @shop_owner_permissions()
-    def post(self, user):
+    @shop_check("w")
+    @product_check("w")
+    def post(self, shop, product, user, **kwargs):
         try:
-            shop_id = request.args.get("shop_id")
-            shop, err = validate_shop(shop_id=shop_id)
-
-            if err:
-                return err
-
-            product_id = request.args.get("product_id")
-            product, err = validate_product(product_id=product_id, shop_id=shop.id)
-
-            if err:
-                return err
-
             last_image = (
                 ProductImagesModel.query.filter_by(
                     shop_id=shop.id, product_id=product.id
@@ -88,20 +67,10 @@ class ProductImages(Resource):
             return f"something went wrong: {e}", 500
 
     @shop_owner_permissions()
-    def delete(self, user):
+    @shop_check("w")
+    @product_check("w")
+    def delete(self, shop, product, **kwargs):
         try:
-            shop_id = request.args.get("shop_id")
-            shop, err = validate_shop(shop_id=shop_id)
-
-            if err:
-                return err
-
-            product_id = request.args.get("product_id")
-            product, err = validate_product(product_id=product_id, shop_id=shop.id)
-
-            if err:
-                return err
-
             image_id = request.args.get("image_id")
             all = request.args.get("all")
 

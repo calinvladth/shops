@@ -1,12 +1,13 @@
 from functools import wraps
 from models import ProductsModel
+from flask import request
 
 
 def product_check(permissions="w"):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            product_id = kwargs.get("product_id")
+            product_id = kwargs.get("product_id") or request.args.get("product_id")
 
             if not product_id:
                 return "missing product", 500
