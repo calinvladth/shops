@@ -22,6 +22,7 @@ from resources import (
     Product,
     CartList,
     CartItems,
+    ProductImages,
 )
 
 
@@ -62,6 +63,7 @@ api.add_resource(ShopList, "/shops")
 api.add_resource(ShopResource, "/shops/<int:shop_id>")
 api.add_resource(ProductsList, "/products")
 api.add_resource(Product, "/products/<int:product_id>")
+api.add_resource(ProductImages, "/product-images")
 
 api.add_resource(CartList, "/cart")
 api.add_resource(CartItems, "/cart_item")

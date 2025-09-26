@@ -1,7 +1,8 @@
 from flask import request
 from flask_restful import Resource
-from models import ProductsModel, db, ShopModel, CartItemModel
-from wrappers import shop_required, validate_shop
+from models import ProductsModel, db, ShopModel, CartItemModel, ProductImagesModel
+from wrappers import shop_required
+from common.config import UPLOAD_FOLDER
 
 
 class ProductsList(Resource):
@@ -49,7 +50,7 @@ class ProductsList(Resource):
                 return "price is missing", 500
 
             new_product = ProductsModel(
-                name=name, price=price, user_id=user.id, shop_id=shop_id
+                name=name, price=price, shop_id=shop_id, user_id=user.id
             )
             db.session.add(new_product)
             db.session.commit()
@@ -85,7 +86,6 @@ class Product(Resource):
         except Exception as e:
             return f"something went wrong: {e}", 500
 
-    @shop_required()
     def put(self, product_id, user):
         try:
             shop_id = request.args.get("shop_id")
