@@ -6,7 +6,7 @@ from sendgrid.helpers.mail import Mail
 def send_email(to, subject, body):
     try:
         message = Mail(
-            from_email=os.environ.get("MAIL"),  # must be your verified sender
+            from_email=os.environ.get("MAIL"),
             to_emails=to,
             subject=subject,
             html_content=body,
