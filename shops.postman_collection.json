@@ -1,0 +1,885 @@
+{
+  "info": {
+    "_postman_id": "f9f1e7c9-0d45-4639-8c8b-bba9ecdd3c71",
+    "name": "Shops",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12599289"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"1q2w3e\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/register-user",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["register-user"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let response = pm.response.json();",
+                  "",
+                  "if (response) {",
+                  "    pm.collectionVariables.set(\"token\", response);",
+                  "    console.log(\"Token saved:\", response);",
+                  "} else {",
+                  "    console.log(\"No token found in response:\", response);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"1q2w3e\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@test.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/forgot-password",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["forgot-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "auth": {
+              "type": "jwt",
+              "jwt": [
+                {
+                  "key": "algorithm",
+                  "value": "HS256",
+                  "type": "string"
+                },
+                {
+                  "key": "isSecretBase64Encoded",
+                  "value": false,
+                  "type": "boolean"
+                },
+                {
+                  "key": "payload",
+                  "value": "{}",
+                  "type": "string"
+                },
+                {
+                  "key": "addTokenTo",
+                  "value": "header",
+                  "type": "string"
+                },
+                {
+                  "key": "headerPrefix",
+                  "value": "Bearer",
+                  "type": "string"
+                },
+                {
+                  "key": "queryParamKey",
+                  "value": "token",
+                  "type": "string"
+                },
+                {
+                  "key": "header",
+                  "value": "{}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NzI0MjMxNSwianRpIjoiYzAwMDI3N2MtNzMyYy00N2U3LTlmMzctZTIzYjI1NTNjMTlhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTcyNDIzMTUsImNzcmYiOiIxNjQ1NWQ5Zi0wNjg5LTRhYzYtODAxMy0zMGRiYjhlYzYxY2QiLCJleHAiOjE3NTcyNDMyMTV9.HR7DXqOxZRUDIiYtGnv2CUQgwFGYOf6zf42rBqEmnBQ ",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"new_password\": \"test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/reset-password",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["reset-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restricted",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{URL}}/restricted",
+              "host": ["{{URL}}"],
+              "path": ["restricted"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register shop",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"owner@test.com\",\n    \"password\": \"test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/register-shop",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["register-shop"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shops",
+      "item": [
+        {
+          "name": "Shops list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/shops",
+              "host": ["{{URL}}"],
+              "path": ["shops"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create shop",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"First shop\",\n    \"address\": \"address details\",\n    \"city\": \"city details\",\n    \"latitude\": 1,\n    \"longitude\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/shops",
+              "host": ["{{URL}}"],
+              "path": ["shops"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shop",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"\"\n}"
+            },
+            "url": {
+              "raw": "{{URL}}/shops/1",
+              "host": ["{{URL}}"],
+              "path": ["shops", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update shop",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n        \"latitude\": \"45.80077382198984\",\n        \"longitude\": \"45.80077382198984\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/shops/1",
+              "host": ["{{URL}}"],
+              "path": ["shops", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove shop",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"First shop\"\n}"
+            },
+            "url": {
+              "raw": "{{URL}}/shops/1",
+              "host": ["{{URL}}"],
+              "path": ["shops", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Products list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/products?shop_id=2",
+              "host": ["{{URL}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"First product\",\n    \"price\": 10.99\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/products?shop_id=1",
+              "host": ["{{URL}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Product get",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/products/1?shop_id=1",
+              "host": ["{{URL}}"],
+              "path": ["products", "1"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Product update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"price\": 11.99\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/products/1?shop_id=1",
+              "host": ["{{URL}}"],
+              "path": ["products", "1"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Product Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/products/1?shop_id=1",
+              "host": ["{{URL}}"],
+              "path": ["products", "1"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Cart List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{URL}}/cart",
+              "host": ["{{URL}}"],
+              "path": ["cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cart Item Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/cart_item?shop_id=1&product_id=1",
+              "host": ["{{URL}}"],
+              "path": ["cart_item"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                },
+                {
+                  "key": "product_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cart Item Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{URL}}/cart_item?cart_item=1",
+              "host": ["{{URL}}"],
+              "path": ["cart_item"],
+              "query": [
+                {
+                  "key": "cart_item",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cart Item Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"quantity\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/cart_item?shop_id=1&cart_item=1",
+              "host": ["{{URL}}"],
+              "path": ["cart_item"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                },
+                {
+                  "key": "cart_item",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product Images",
+      "item": [
+        {
+          "name": "Images Get",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/product-images?shop_id=1&product_id=1",
+              "host": ["{{URL}}"],
+              "path": ["product-images"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                },
+                {
+                  "key": "product_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Image create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{URL}}/product-images?shop_id=1&product_id=1",
+              "host": ["{{URL}}"],
+              "path": ["product-images"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                },
+                {
+                  "key": "product_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Images Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{URL}}/product-images?shop_id=1&all=true&product_id=1",
+              "host": ["{{URL}}"],
+              "path": ["product-images"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                },
+                {
+                  "key": "all",
+                  "value": "true"
+                },
+                {
+                  "key": "product_id",
+                  "value": "1"
+                },
+                {
+                  "key": "image_id",
+                  "value": "1",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Orders Get",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{URL}}/orders",
+              "host": ["{{URL}}"],
+              "path": ["orders"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Order Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/orders",
+              "host": ["{{URL}}"],
+              "path": ["orders"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Order Item Get",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{URL}}/orders/1",
+              "host": ["{{URL}}"],
+              "path": ["orders", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Shop Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{URL}}/shop/orders?shop_id=1",
+              "host": ["{{URL}}"],
+              "path": ["shop", "orders"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Order Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"cancelled\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/shop/orders/1?shop_id=1",
+              "host": ["{{URL}}"],
+              "path": ["shop", "orders", "1"],
+              "query": [
+                {
+                  "key": "shop_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "URL",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
