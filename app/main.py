@@ -23,6 +23,9 @@ from resources import (
     CartList,
     CartItems,
     ProductImages,
+    OrderList,
+    OrderResource,
+    OrderAdminResource,
 )
 
 
@@ -67,6 +70,13 @@ api.add_resource(ProductImages, "/product-images")
 
 api.add_resource(CartList, "/cart")
 api.add_resource(CartItems, "/cart_item")
+
+# User endpoints
+api.add_resource(OrderList, "/orders")
+api.add_resource(OrderResource, "/orders/<int:order_id>")
+
+# Shop/Admin endpoints
+api.add_resource(OrderAdminResource, "/shop/orders", "/shop/orders/<int:order_id>")
 
 
 if __name__ == "__main__":

@@ -24,3 +24,25 @@ class ShopModel(db.Model):
             "latitude": self.latitude,
             "longitude": self.longitude,
         }
+
+
+# class ShopImageModel(db.Model):
+#     __tablename__ = "shop_image"
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     shop_id = db.Column(
+#         db.Integer, db.ForeignKey("shop.id"), nullable=False, unique=True
+#     )
+#     path = db.Column(db.String(255), nullable=False)
+#     filename = db.Column(db.String(255), nullable=False)
+#     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+#     def to_dict(self):
+#         return {
+#             "id": self.id,
+#             "path": self.path,
+#             "filename": self.filename,
+#             "order": self.order,
+#             # "shop_id": self.shop_id,
+#             # "user_id": self.user_id,
+#         }
