@@ -3,10 +3,7 @@ from flask import Flask
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 from common.config import UPLOAD_FOLDER, CWD
-from resources.file_uploader import FileUploader
 
-from resources.shop import Shop
-from resources.shop_menu import ShopMenu
 from models import db, jwt
 
 from resources import (
@@ -49,12 +46,7 @@ app.config["UPLOAD_FOLDER"] = os.path.join(CWD, UPLOAD_FOLDER)
 api = Api(app)
 
 
-# Old
-api.add_resource(FileUploader, "/upload")
-api.add_resource(Shop, "/shop")
-api.add_resource(ShopMenu, "/shop/<shop_id>")
-# End Old
-
+# Authentication
 api.add_resource(RegisterUser, "/register-user")
 api.add_resource(RegisterShop, "/register-shop")
 api.add_resource(Login, "/login")
@@ -62,20 +54,22 @@ api.add_resource(ForgotPassword, "/forgot-password")
 api.add_resource(ResetPassword, "/reset-password")
 api.add_resource(RestrictedRoute, "/restricted")
 
+# Shops
 api.add_resource(ShopList, "/shops")
 api.add_resource(ShopResource, "/shops/<int:shop_id>")
+
+# Products
 api.add_resource(ProductsList, "/products")
 api.add_resource(Product, "/products/<int:product_id>")
 api.add_resource(ProductImages, "/product-images")
 
+# Cart
 api.add_resource(CartList, "/cart")
 api.add_resource(CartItems, "/cart_item")
 
-# User endpoints
+# Orders
 api.add_resource(OrderList, "/orders")
 api.add_resource(OrderResource, "/orders/<int:order_id>")
-
-# Shop/Admin endpoints
 api.add_resource(OrderAdminResource, "/shop/orders", "/shop/orders/<int:order_id>")
 
 
